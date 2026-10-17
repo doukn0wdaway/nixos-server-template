@@ -1,0 +1,24 @@
+# Builds on the runner and pushes the closure to the server.
+# Setup: repo variable VPS_HOST (ip), secret VPS_DEPLOY_KEY (private key whose pubkey is in host.nix).
+# Without VPS_HOST the job is skipped, so a fresh server repo stays green.
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    if: vars.VPS_HOST != ''
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: cachix/install-nix-action@v31
+      - name: SSH key
+        run: |
+          install -m 700 -d ~/.ssh
+          echo "${{ secrets.VPS_DEPLOY_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan "${{ vars.VPS_HOST }}" >> ~/.ssh/known_hosts
+      - run: nix run .#deploy -- root@${{ vars.VPS_HOST }}
