@@ -127,8 +127,10 @@
             cd "$dir"
             nix flake init -t "path:${self}"
             sed -i "s|networking.hostName = \".*\";|networking.hostName = \"$name\";|" host.nix
+            # Console password: DEFAULT_PASSWORD from this template's .env.enc, if your key can decrypt it
+            pw=$(sec run "${self}/.env.enc" -- printenv DEFAULT_PASSWORD 2>/dev/null) || pw=
             tmp=$(mktemp -d)
-            printf 'SERVER_IP=%s\nDEFAULT_PASSWORD=\n' "$ip" > "$tmp/.env"
+            printf 'SERVER_IP=%s\nDEFAULT_PASSWORD=%s\n' "$ip" "$pw" > "$tmp/.env"
             sec enc "$tmp/.env" .env.enc
             rm -rf "$tmp"
             git init -q
@@ -137,8 +139,9 @@
             echo
             echo "Created $dir. Next:"
             echo "  cd $dir && direnv allow"
-            if [[ -n "$ip" ]]; then echo "  sec edit .env.enc   # DEFAULT_PASSWORD"
-            else echo "  sec edit .env.enc   # SERVER_IP, DEFAULT_PASSWORD"; fi
+            if [[ -z "$ip" && -z "$pw" ]]; then echo "  sec edit .env.enc   # SERVER_IP, DEFAULT_PASSWORD"
+            elif [[ -z "$ip" ]]; then echo "  sec edit .env.enc   # SERVER_IP"
+            elif [[ -z "$pw" ]]; then echo "  sec edit .env.enc   # DEFAULT_PASSWORD"; fi
             echo "  edit host.nix (disk, ports, docker...)"
             echo "  nixinstall"
           '');

@@ -24,12 +24,14 @@ direnv allow
 ```
 
 This creates `./myserver` with the hostname set, runs `git init`, and writes `.env.enc` with
-`SERVER_IP`. The IP is optional and can be filled in later.
+`SERVER_IP` and `DEFAULT_PASSWORD` (copied from this repo's `.env.enc`, if your key can decrypt
+it). The IP is optional and can be filled in later.
 
-### 2. Set the password and IP
+### 2. Check the password and IP
 
 ```sh
-sec edit .env.enc
+sec cat .env.enc    # view
+sec edit .env.enc   # change
 ```
 
 ```
@@ -37,9 +39,9 @@ SERVER_IP=1.2.3.4
 DEFAULT_PASSWORD=...
 ```
 
-`DEFAULT_PASSWORD` is the root password for the VNC console (SSH login is key-only). During
-installation it is hashed and the hash is written to `host.nix`. Leave it empty for a
-passwordless root.
+`DEFAULT_PASSWORD` is the root password for the VNC console (SSH login is key-only). `new`
+copies it from this repo's `.env.enc`; replace it per server if you like. During installation
+it is hashed and the hash is written to `host.nix`. Leave it empty for a passwordless root.
 
 ### 3. Edit `host.nix`
 

@@ -16,7 +16,7 @@ git add -A && git commit -m install
 
 `nixinstall`/`nixdeploy` (from direnv) = `sec run .env.enc -- nix run .#install`/`.#deploy`.
 `.env.enc`: `SERVER_IP` and `DEFAULT_PASSWORD` — its hash becomes the root password for the VNC
-console (SSH is key-only; empty means no password). View/edit: `sec cat .env.enc`, `sec edit .env.enc`.
+console (SSH is key-only; `new` copies it from the template's `.env.enc`, empty means no password). View/edit: `sec cat .env.enc`, `sec edit .env.enc`.
 **The disk set in `host.nix` will be wiped.**
 
 Without an ISO, on top of Ubuntu/Debian with root over SSH: `nixinstall root@$SERVER_IP` (kexec; KVM, DHCP, ≥2 GB RAM).
