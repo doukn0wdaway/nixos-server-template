@@ -70,7 +70,11 @@
 
       # Run a server app with SERVER_IP / DEFAULT_PASSWORD from the repo's .env.enc (sec is from the system)
       withEnv = app: ''
-        cd "$(git rev-parse --show-toplevel)"
+        # Nearest dir with a flake.nix, not the git root: a server may live in a monorepo
+        until [[ -f flake.nix ]]; do
+          [[ $PWD != / ]] || { echo "no flake.nix in this dir or its parents" >&2; exit 1; }
+          cd ..
+        done
         if [[ -f .env.enc ]]; then
           exec sec run .env.enc -- nix run .#${app} -- "$@"
         fi
